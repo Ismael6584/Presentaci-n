@@ -1,0 +1,140 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Los Perros Más Lindos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        header {
+            text-align: center;
+            padding: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 10px;
+        }
+        section {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #4CAF50;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        .section-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+        }
+        .text {
+            flex: 1;
+            min-width: 300px;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Los Perros Más Lindos del Mundo</h1>
+        <p>Una presentación sobre nuestros amigos caninos más adorables</p>
+    </header>
+
+    <section id="historia">
+        <h2>Historia de los Perros</h2>
+        <div class="section-content">
+            <div class="text">
+                <p>Los perros han sido compañeros del ser humano durante miles de años. Desde sus orígenes como lobos domesticados, han evolucionado para convertirse en las adorables mascotas que conocemos hoy. Su lealtad y diversidad los hacen únicos.</p>
+            </div>
+            <img src="images/historia1.jpg" alt="Perro en la historia">
+            <img src="images/historia2.jpg" alt="Perro antiguo">
+        </div>
+    </section>
+
+    <section id="razas">
+        <h2>Razas Más Lindas</h2>
+        <div class="section-content">
+            <div class="text">
+                <p>Algunas razas destacan por su ternura. Por ejemplo, los Golden Retrievers, los Corgis y los Pomeranias son conocidos por sus expresiones adorables y personalidades encantadoras.</p>
+            </div>
+            <img src="images/raza1.jpg" alt="Golden Retriever">
+            <img src="images/raza2.jpg" alt="Corgi">
+        </div>
+    </section>
+
+    <section id="cuidados">
+        <h2>Cuidando a Nuestros Perros</h2>
+        <div class="section-content">
+            <div class="text">
+                <p>Para mantener a nuestros perros felices, es importante brindarles una buena alimentación, ejercicio regular y mucho cariño. Las visitas al veterinario y un ambiente seguro son clave para su bienestar.</p>
+            </div>
+            <img src="images/cuidado1.jpg" alt="Perro jugando">
+            <img src="images/cuidado2.jpg" alt="Perro en el veterinario">
+        </div>
+    </section>
+
+    <footer>
+        <p>¡Ama y cuida a tus perros, ellos siempre estarán ahí para ti!</p>
+    </footer>
+</body>
+</html>
